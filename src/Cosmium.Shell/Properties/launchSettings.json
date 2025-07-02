@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Cosmium.Shell": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+﻿{
+  "applications": {
+    "Cosmium.Web": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44398",
+      "healthCheckEndpoint": "/health-status",
+      "healthUiEndpoint": "/health-ui",
+      "path": "../../Cosmium.Web/Cosmium.Web.csproj",
+      "execution": {
+        "order": 0
+      }
+    }
+  }
+}

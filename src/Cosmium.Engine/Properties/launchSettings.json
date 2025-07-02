@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Cosmium.Engine": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
