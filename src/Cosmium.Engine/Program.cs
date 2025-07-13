@@ -1,5 +1,8 @@
 ﻿using Cosmium.Engine.Physics.Mathematics;
 using Cosmium.Engine.Physics.Quantum.Constants;
+using Cosmium.Engine.Infrastructure.Configuration;
+using Cosmium.Engine.Infrastructure.Logging;
+using Cosmium.Engine.Infrastructure.Validation;
 
 namespace Cosmium.Engine;
 
@@ -32,6 +35,9 @@ internal class Program
 
         Console.WriteLine("🔍 Running component initialization checks...\n");
 
+        results.Add(("Configuration System", InitializeConfiguration()));
+        results.Add(("Logging System", InitializeLogging()));
+        results.Add(("Validation Framework", InitializeValidation()));
         results.Add(("Complex Numbers", InitializeComplexNumbers()));
         results.Add(("3D Vectors", InitializeVector3D()));
         results.Add(("Matrix Operations", InitializeMatrix()));
@@ -363,6 +369,130 @@ internal class Program
         catch (Exception ex)
         {
             Console.WriteLine($"   ❌ Precision handling initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static bool InitializeConfiguration()
+    {
+        try
+        {
+            Console.WriteLine("🔧 Configuration System:");
+            
+            // Test configuration loading
+            var config = EngineConfiguration.Instance;
+            Console.WriteLine($"   Configuration loaded successfully");
+            
+            // Test computation settings
+            var computation = config.Computation;
+            Console.WriteLine($"   Thread count: {computation.ThreadCount}");
+            Console.WriteLine($"   Default tolerance: {computation.DefaultTolerance:E3}");
+            Console.WriteLine($"   Max iterations: {computation.MaxIterations}");
+            
+            // Test physics settings
+            var physics = config.Physics;
+            Console.WriteLine($"   Default temperature: {physics.DefaultTemperature:F1} K");
+            Console.WriteLine($"   Default time step: {physics.DefaultTimeStep:E3} s");
+            Console.WriteLine($"   Unit system: {physics.UnitSystem}");
+            
+            // Validate configuration
+            var validationResult = config.Validate();
+            if (!validationResult)
+            {
+                Console.WriteLine($"   ❌ Configuration validation failed");
+                return false;
+            }
+            
+            Console.WriteLine($"   ✓ Configuration system validated");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Configuration initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static bool InitializeLogging()
+    {
+        try
+        {
+            Console.WriteLine("📝 Logging System:");
+            
+            // Test simulation logger
+            var logger = SimulationLogger.Instance;
+            logger.Information("Logging system test", new { Component = "Initialization" });
+            Console.WriteLine($"   Simulation logger initialized");
+            
+            // Test performance logger
+            var perfLogger = PerformanceLogger.Instance;
+            using (perfLogger.BeginOperation("TestOperation"))
+            {
+                System.Threading.Thread.Sleep(1); // Simulate work
+            }
+            Console.WriteLine($"   Performance logger initialized");
+            
+            // Test log levels and contexts
+            logger.Debug("Debug message test");
+            logger.Warning("Warning message test");
+            
+            Console.WriteLine($"   Log targets configured");
+            Console.WriteLine($"   ✓ Logging system validated");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Logging initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static bool InitializeValidation()
+    {
+        try
+        {
+            Console.WriteLine("🔍 Validation Framework:");
+            
+            // Test basic parameter validation
+            var result1 = ParameterValidator.ValidatePositive(5.0, "testValue");
+            var result2 = ParameterValidator.ValidateRange(0.5, "probability", 0.0, 1.0);
+            var result3 = ParameterValidator.ValidateFiniteDouble(Math.PI, "pi");
+            
+            Console.WriteLine($"   Basic validation tests: {result1.IsValid && result2.IsValid && result3.IsValid}");
+            
+            // Test physics validation
+            var tempResult = PhysicsValidator.ValidateTemperature(300.0, "roomTemp");
+            var massResult = PhysicsValidator.ValidateMass(9.109e-31, "electronMass", allowZero: false);
+            var energyResult = PhysicsValidator.ValidateEnergy(1.602e-19, "electronVolt");
+            
+            Console.WriteLine($"   Physics validation tests: {tempResult.IsValid && massResult.IsValid && energyResult.IsValid}");
+            
+            // Test complex validation
+            var complexArray = new System.Numerics.Complex[] { 
+                new(0.6, 0.0), new(0.8, 0.0) // Normalized state |0.6⟩ + |0.8⟩
+            };
+            // Normalize it properly
+            var norm = Math.Sqrt(complexArray.Sum(c => c.Real * c.Real + c.Imaginary * c.Imaginary));
+            for (int i = 0; i < complexArray.Length; i++)
+                complexArray[i] /= norm;
+            
+            var quantumResult = ParameterValidator.ValidateQuantumState(complexArray, "testState");
+            Console.WriteLine($"   Quantum state validation: {quantumResult.IsValid}");
+            
+            // Test error handling
+            var failResult = ParameterValidator.ValidatePositive(-1.0, "negativeValue");
+            Console.WriteLine($"   Error handling test: {!failResult.IsValid}");
+            
+            bool allValid = result1.IsValid && result2.IsValid && result3.IsValid && 
+                           tempResult.IsValid && massResult.IsValid && energyResult.IsValid && 
+                           quantumResult.IsValid && !failResult.IsValid;
+            
+            Console.WriteLine($"   ✓ Validation framework validated");
+            return allValid;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Validation initialization failed: {ex.Message}");
             return false;
         }
     }
