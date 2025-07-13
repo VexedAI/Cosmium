@@ -18,6 +18,10 @@ internal class Program
         {
             Console.WriteLine("\n✅ All core components initialized successfully!");
             Console.WriteLine("🚀 Cosmium Engine is ready for operation.");
+            
+            // Demonstrate the Abstract Particle Framework
+            Console.WriteLine();
+            DemonstrateParticleFramework();
         }
         else
         {
@@ -45,6 +49,7 @@ internal class Program
         results.Add(("Physics Constants", InitializePhysicsConstants()));
         results.Add(("Unit Conversions", InitializeUnitConversions()));
         results.Add(("Precision Handling", InitializePrecisionHandling()));
+        results.Add(("Abstract Particle Framework", InitializeAbstractParticleFramework()));
 
         // Display results summary
         Console.WriteLine("\n📊 Initialization Results:");
@@ -494,6 +499,101 @@ internal class Program
         {
             Console.WriteLine($"   ❌ Validation initialization failed: {ex.Message}");
             return false;
+        }
+    }
+
+    private static bool InitializeAbstractParticleFramework()
+    {
+        try
+        {
+            Console.WriteLine("🌌 Abstract Particle Framework:");
+            
+            // Test that interfaces can be referenced
+            Type particleInterface = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.IQuantumParticle);
+            Type compositeInterface = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.ICompositeParticle);
+            Type measurableInterface = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.IMeasurable<>);
+            Type baseClass = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.QuantumParticleBase);
+            
+            Console.WriteLine($"   IQuantumParticle interface loaded: {particleInterface != null}");
+            Console.WriteLine($"   ICompositeParticle interface loaded: {compositeInterface != null}");
+            Console.WriteLine($"   IMeasurable interface loaded: {measurableInterface != null}");
+            Console.WriteLine($"   QuantumParticleBase class loaded: {baseClass != null}");
+            
+            // Verify interface properties and methods exist
+            var particleProperties = particleInterface?.GetProperties() ?? Array.Empty<System.Reflection.PropertyInfo>();
+            var particleMethods = particleInterface?.GetMethods() ?? Array.Empty<System.Reflection.MethodInfo>();
+            
+            bool hasExpectedProperties = particleProperties.Any(p => p.Name == "Mass") &&
+                                       particleProperties.Any(p => p.Name == "Charge") &&
+                                       particleProperties.Any(p => p.Name == "Spin") &&
+                                       particleProperties.Any(p => p.Name == "StateVector");
+            
+            bool hasExpectedMethods = particleMethods.Any(m => m.Name == "EvolveState") &&
+                                    particleMethods.Any(m => m.Name == "MeasureObservable") &&
+                                    particleMethods.Any(m => m.Name == "CalculateExpectationValue");
+            
+            Console.WriteLine($"   Core properties defined: {hasExpectedProperties}");
+            Console.WriteLine($"   Core methods defined: {hasExpectedMethods}");
+            
+            // Test enum types
+            var statisticsEnum = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.ParticleStatistics);
+            var hasStatistics = Enum.IsDefined(statisticsEnum, "FermiDirac") &&
+                              Enum.IsDefined(statisticsEnum, "BoseEinstein");
+            
+            Console.WriteLine($"   Particle statistics enum: {hasStatistics}");
+            
+            // Verify event args classes
+            var stateChangedArgs = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.QuantumStateChangedEventArgs);
+            var measurementArgs = typeof(Cosmium.Engine.Physics.Quantum.Particles.Abstract.MeasurementPerformedEventArgs);
+            
+            Console.WriteLine($"   Event argument classes defined: {stateChangedArgs != null && measurementArgs != null}");
+            
+            bool allValid = particleInterface != null && compositeInterface != null && 
+                           measurableInterface != null && baseClass != null &&
+                           hasExpectedProperties && hasExpectedMethods && hasStatistics &&
+                           stateChangedArgs != null && measurementArgs != null;
+            
+            Console.WriteLine($"   ✓ Abstract particle framework validated");
+            return allValid;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Abstract particle framework initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static void DemonstrateParticleFramework()
+    {
+        try
+        {
+            Console.WriteLine("🎯 Demonstrating Abstract Particle Framework:");
+            Console.WriteLine("   Creating an example qubit...");
+            
+            var qubit = new Cosmium.Engine.Physics.Quantum.Particles.Examples.ExampleQubit();
+            
+            // Start in ground state |0⟩
+            qubit.SetGroundState();
+            Console.WriteLine($"   Ground state |0⟩ probability: {qubit.GetZeroProbability():F3}");
+            
+            // Apply Hadamard to create superposition
+            qubit.ApplyHadamard();
+            Console.WriteLine($"   After Hadamard - |0⟩: {qubit.GetZeroProbability():F3}, |1⟩: {qubit.GetOneProbability():F3}");
+            
+            // Apply Pauli-X (bit flip)
+            qubit.ApplyPauliX();
+            Console.WriteLine($"   After Pauli-X - |0⟩: {qubit.GetZeroProbability():F3}, |1⟩: {qubit.GetOneProbability():F3}");
+            
+            // Measure in computational basis
+            var measurement = qubit.MeasureComputationalBasis();
+            Console.WriteLine($"   Measurement result: |{measurement}⟩");
+            Console.WriteLine($"   After measurement - |0⟩: {qubit.GetZeroProbability():F3}, |1⟩: {qubit.GetOneProbability():F3}");
+            
+            Console.WriteLine("   ✓ Particle framework demonstration completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Particle framework demonstration failed: {ex.Message}");
         }
     }
 }
