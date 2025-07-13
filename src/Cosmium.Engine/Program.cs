@@ -1,4 +1,5 @@
 ﻿using Cosmium.Engine.Physics.Mathematics;
+using Cosmium.Engine.Physics.Quantum.Constants;
 
 namespace Cosmium.Engine;
 
@@ -12,6 +13,9 @@ internal class Program
         DemonstrateVector3D();
         DemonstrateMatrix();
         DemonstrateProbability();
+        DemonstratePhysicsConstants();
+        DemonstrateUnitConversions();
+        DemonstratePrecisionHandling();
 
         Console.WriteLine("\n=== Demo Complete ===");
     }
@@ -110,6 +114,108 @@ internal class Program
         var random = new Random(42);
         var samples = Probability.SampleDiscrete(probabilities, 10, random);
         Console.WriteLine($"10 random samples: [{string.Join(", ", samples)}]");
+        Console.WriteLine();
+    }
+
+    private static void DemonstratePhysicsConstants()
+    {
+        Console.WriteLine("--- Physics Constants ---");
+        
+        Console.WriteLine($"Speed of light: {PhysicsConstants.SpeedOfLight:E3} m/s");
+        Console.WriteLine($"Planck constant: {PhysicsConstants.PlanckConstant:E3} J⋅s");
+        Console.WriteLine($"Reduced Planck constant: {PhysicsConstants.ReducedPlanckConstant:E3} J⋅s");
+        Console.WriteLine($"Elementary charge: {PhysicsConstants.ElementaryCharge:E3} C");
+        Console.WriteLine($"Electron mass: {PhysicsConstants.ElectronMass:E3} kg");
+        Console.WriteLine($"Fine structure constant: {PhysicsConstants.FineStructureConstant:F6}");
+        Console.WriteLine($"Bohr radius: {PhysicsConstants.BohrRadius:E3} m");
+        
+        // Demonstrate derived constants
+        Console.WriteLine($"Planck length: {PhysicsConstants.PlanckLength:E3} m");
+        Console.WriteLine($"Planck time: {PhysicsConstants.PlanckTime:E3} s");
+        
+        // Validate fundamental relationships
+        bool isValid = PhysicsConstants.ValidateConstantRelationships();
+        Console.WriteLine($"Constant relationships valid: {isValid}");
+        Console.WriteLine();
+    }
+
+    private static void DemonstrateUnitConversions()
+    {
+        Console.WriteLine("--- Unit Conversions ---");
+        
+        // Energy conversions
+        double energyJoules = 1e-19; // Example energy
+        double energyEV = UnitConversions.JoulesToElectronVolts(energyJoules);
+        double energyHartree = UnitConversions.JoulesToHartree(energyJoules);
+        
+        Console.WriteLine($"Energy: {energyJoules:E3} J = {energyEV:F3} eV = {energyHartree:E3} Hartree");
+        
+        // Length conversions
+        double lengthMeters = PhysicsConstants.BohrRadius * 2;
+        double lengthBohr = UnitConversions.MetersToBohrRadii(lengthMeters);
+        double lengthAngstrom = UnitConversions.MetersToAngstroms(lengthMeters);
+        
+        Console.WriteLine($"Length: {lengthMeters:E3} m = {lengthBohr:F3} a₀ = {lengthAngstrom:F3} Å");
+        
+        // Wavelength to energy conversion
+        double wavelength = 500e-9; // 500 nm (green light)
+        double photonEnergy = UnitConversions.WavelengthToPhotonEnergy(wavelength);
+        double photonEnergyEV = UnitConversions.JoulesToElectronVolts(photonEnergy);
+        
+        Console.WriteLine($"Green light (λ = {wavelength*1e9:F0} nm): E = {photonEnergyEV:F2} eV");
+        
+        // Temperature to thermal energy
+        double temperatureK = 300; // Room temperature
+        double thermalEnergy = UnitConversions.TemperatureToThermalEnergy(temperatureK);
+        double thermalEnergyEV = UnitConversions.JoulesToElectronVolts(thermalEnergy);
+        
+        Console.WriteLine($"Room temperature thermal energy: {thermalEnergyEV:F3} eV");
+        Console.WriteLine();
+    }
+
+    private static void DemonstratePrecisionHandling()
+    {
+        Console.WriteLine("--- Precision Handling ---");
+        
+        // Demonstrate numerical stability checks
+        double smallValue = 1e-15;
+        bool isZero = PrecisionHandling.IsNumericallyZero(smallValue);
+        Console.WriteLine($"Is {smallValue:E3} numerically zero? {isZero}");
+        
+        // Demonstrate safe operations
+        double negativeValue = -1e-14;
+        double safeSqrt = PrecisionHandling.SafeSqrt(negativeValue);
+        Console.WriteLine($"Safe sqrt of {negativeValue:E3}: {safeSqrt:E3}");
+        
+        // Demonstrate high-precision summation
+        var values = new double[] { 1.0, 1e-10, 1e-15, 1e-20 };
+        double regularSum = values.Sum();
+        double kahanSum = PrecisionHandling.KahanSum(values);
+        
+        Console.WriteLine($"Regular sum: {regularSum:G17}");
+        Console.WriteLine($"Kahan sum: {kahanSum:G17}");
+        Console.WriteLine($"Difference: {Math.Abs(kahanSum - regularSum):E3}");
+        
+        // Demonstrate quantum amplitude normalization
+        var amplitudes = new Complex[]
+        {
+            new Complex(0.6, 0.1),
+            new Complex(0.0, 0.7),
+            new Complex(0.2, -0.1)
+        };
+        
+        var normalized = PrecisionHandling.NormalizeQuantumAmplitudes(amplitudes);
+        double normCheck = normalized.Sum(a => a.Real * a.Real + a.Imaginary * a.Imaginary);
+        
+        Console.WriteLine($"Normalized amplitudes sum |ψ|² = {normCheck:F10}");
+        
+        // Demonstrate numerical diagnostics
+        var testValues = new double[] { 1e-10, 1.0, 1e10, double.Epsilon, 1e-5 };
+        var diagnostics = PrecisionHandling.AnalyzeNumericalStability(testValues);
+        
+        Console.WriteLine($"Numerical health check: {diagnostics.IsNumericallyHealthy}");
+        Console.WriteLine($"Dynamic range: {diagnostics.DynamicRange:F1} orders of magnitude");
+        Console.WriteLine($"Estimated precision loss: {diagnostics.EstimatedPrecisionLoss:F1} digits");
         Console.WriteLine();
     }
 }
