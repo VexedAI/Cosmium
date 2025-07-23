@@ -9,6 +9,7 @@ using Cosmium.Engine.Physics.Quantum.Particles.Fundamental.Bosons;
 using Cosmium.Engine.Physics.Quantum.Particles.Composite.Hadrons.Baryons;
 using Cosmium.Engine.Physics.Quantum.Particles.Composite.Hadrons.Mesons;
 using Cosmium.Engine.Physics.Quantum.States;
+using Cosmium.Engine.Physics.Quantum.Orbitals;
 
 namespace Cosmium.Engine;
 
@@ -59,6 +60,7 @@ internal class Program
         results.Add(("Fundamental Particles", InitializeFundamentalParticles()));
         results.Add(("Composite Particles", InitializeCompositeParticles()));
         results.Add(("Quantum State System", InitializeQuantumStates()));
+        results.Add(("Orbital System", InitializeOrbitalSystem()));
 
         // Display results summary
         Console.WriteLine("\n📊 Initialization Results:");
@@ -1483,5 +1485,245 @@ internal class Program
             { new Complex(1, 0), new Complex(0, 0) },
             { new Complex(0, 0), new Complex(-1, 0) }
         });
+    }
+
+    private static bool InitializeOrbitalSystem()
+    {
+        try
+        {
+            Console.WriteLine("🌌 Orbital System:");
+            
+            bool allOrbitalsValid = true;
+            
+            // Test Hydrogen-like Orbitals
+            Console.WriteLine("   ⚛️  Testing Hydrogen-like Orbitals...");
+            try
+            {
+                // Create common hydrogen orbitals
+                var h1s = HydrogenicOrbital.Create1s(1.0);
+                var h2s = HydrogenicOrbital.Create2s(1.0);
+                var h2p = HydrogenicOrbital.Create2p(0, 1.0);
+                var h3d = HydrogenicOrbital.Create3d(0, 1.0);
+                
+                Console.WriteLine($"      H 1s: {h1s.OrbitalDesignation}, Energy = {QuantumMath.JoulesToElectronVolts(h1s.Energy):F3} eV");
+                Console.WriteLine($"      H 2s: {h2s.OrbitalDesignation}, Energy = {QuantumMath.JoulesToElectronVolts(h2s.Energy):F3} eV");
+                Console.WriteLine($"      H 2p: {h2p.OrbitalDesignation}, Energy = {QuantumMath.JoulesToElectronVolts(h2p.Energy):F3} eV");
+                Console.WriteLine($"      H 3d: {h3d.OrbitalDesignation}, Energy = {QuantumMath.JoulesToElectronVolts(h3d.Energy):F3} eV");
+                
+                // Test quantum numbers and nodes
+                Console.WriteLine($"      1s nodes: radial={h1s.RadialNodes}, angular={h1s.AngularNodes}");
+                Console.WriteLine($"      2s nodes: radial={h2s.RadialNodes}, angular={h2s.AngularNodes}");
+                Console.WriteLine($"      2p nodes: radial={h2p.RadialNodes}, angular={h2p.AngularNodes}");
+                Console.WriteLine($"      3d nodes: radial={h3d.RadialNodes}, angular={h3d.AngularNodes}");
+                
+                // Test most probable radii
+                var r1s = h1s.MostProbableRadius();
+                var r2s = h2s.MostProbableRadius();
+                
+                Console.WriteLine($"      Most probable radii: 1s = {r1s * 1e12:F1} pm, 2s = {r2s * 1e12:F1} pm");
+                
+                // Test wave function evaluation
+                var rBohr = PhysicsConstants.BohrRadius;
+                var wf1s = h1s.RadialWaveFunction(rBohr);
+                var wf2s = h2s.RadialWaveFunction(rBohr);
+                
+                Console.WriteLine($"      R₁ₛ(a₀) = {wf1s:E3}, R₂ₛ(a₀) = {wf2s:E3}");
+                
+                // Test angular wave functions
+                var Y00 = h1s.AngularWaveFunction(0, 0); // s orbital at z-axis
+                var Y10 = h2p.AngularWaveFunction(0, 0); // p_z orbital at z-axis
+                
+                Console.WriteLine($"      Y₀⁰(0,0) = {Y00}, Y₁⁰(0,0) = {Y10}");
+                
+                // Test expectation values
+                var expectR1s = h1s.ExpectationValueRadius();
+                var expectR2s = h2s.ExpectationValueRadius();
+                
+                Console.WriteLine($"      ⟨r⟩₁ₛ = {expectR1s * 1e12:F1} pm, ⟨r⟩₂ₛ = {expectR2s * 1e12:F1} pm");
+                
+                // Validate hydrogen orbital properties
+                bool hydrogenValid = h1s.IsNormalized && h2s.IsNormalized && h2p.IsNormalized &&
+                                   h1s.ValidateQuantumNumbers() && h2s.ValidateQuantumNumbers() && h2p.ValidateQuantumNumbers() &&
+                                   h1s.Energy < 0 && h2s.Energy < 0 && h2p.Energy < 0 && // Bound states have negative energy
+                                   Math.Abs(h2s.Energy - h2p.Energy) < 1e-15 && // 2s and 2p degenerate in hydrogen
+                                   h1s.Energy < h2s.Energy; // 1s lower energy than 2s
+                
+                if (!hydrogenValid)
+                {
+                    Console.WriteLine($"      ❌ Hydrogen-like orbital validation failed");
+                    allOrbitalsValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Hydrogen-like orbitals validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Hydrogen-like orbital testing failed: {ex.Message}");
+                allOrbitalsValid = false;
+            }
+            
+            // Test Molecular Orbitals
+            Console.WriteLine("   ⚛️  Testing Molecular Orbitals...");
+            try
+            {
+                // Create H₂⁺ molecular orbitals
+                double bondLength = 2.0 * PhysicsConstants.BohrRadius; // Typical H₂ bond length
+                var h2plusBonding = MolecularOrbital.CreateH2Plus(bondLength, isBonding: true);
+                var h2plusAntibonding = MolecularOrbital.CreateH2Plus(bondLength, isBonding: false);
+                
+                Console.WriteLine($"      H₂⁺ σ (bonding): Energy = {QuantumMath.JoulesToElectronVolts(h2plusBonding.Energy):F3} eV");
+                Console.WriteLine($"      H₂⁺ σ* (antibonding): Energy = {QuantumMath.JoulesToElectronVolts(h2plusAntibonding.Energy):F3} eV");
+                Console.WriteLine($"      Contributing orbitals: σ = {h2plusBonding.NumberOfContributingOrbitals}, σ* = {h2plusAntibonding.NumberOfContributingOrbitals}");
+                Console.WriteLine($"      Bond order contributions: σ = {h2plusBonding.BondOrderContribution:F1}, σ* = {h2plusAntibonding.BondOrderContribution:F1}");
+                
+                // Test orbital types and properties
+                Console.WriteLine($"      Orbital types: {h2plusBonding.OrbitalType}, {h2plusAntibonding.OrbitalType}");
+                Console.WriteLine($"      Are normalized: σ = {h2plusBonding.IsNormalized}, σ* = {h2plusAntibonding.IsNormalized}");
+                
+                // Test bond order calculation
+                var bondOrderBonding = h2plusBonding.CalculateBondOrder(1); // 1 electron in bonding
+                var bondOrderAntibonding = h2plusAntibonding.CalculateBondOrder(0); // 0 electrons in antibonding
+                var totalBondOrder = bondOrderBonding + bondOrderAntibonding;
+                
+                Console.WriteLine($"      Bond orders: bonding = {bondOrderBonding:F1}, antibonding = {bondOrderAntibonding:F1}");
+                Console.WriteLine($"      Total bond order H₂⁺: {totalBondOrder:F1}");
+                
+                // Test overlap population
+                var overlapPopBonding = h2plusBonding.CalculateOverlapPopulation();
+                var overlapPopAntibonding = h2plusAntibonding.CalculateOverlapPopulation();
+                
+                Console.WriteLine($"      Overlap populations: σ = {overlapPopBonding:F3}, σ* = {overlapPopAntibonding:F3}");
+                
+                // Create π orbitals from p orbitals
+                var p2p_x1 = HydrogenicOrbital.Create2p(1, 1.0); // px orbital
+                var p2p_x2 = HydrogenicOrbital.Create2p(1, 1.0); // px orbital
+                var position1 = new Vector3D(-bondLength/2, 0, 0);
+                var position2 = new Vector3D(bondLength/2, 0, 0);
+                
+                var piBonding = MolecularOrbital.CreatePiOrbital(p2p_x1, p2p_x2, true, position1, position2);
+                var piAntibonding = MolecularOrbital.CreatePiOrbital(p2p_x1, p2p_x2, false, position1, position2);
+                
+                Console.WriteLine($"      π orbitals created: {piBonding.OrbitalType}, {piAntibonding.OrbitalType}");
+                Console.WriteLine($"      π orbital energies: π = {QuantumMath.JoulesToElectronVolts(piBonding.Energy):F3} eV, π* = {QuantumMath.JoulesToElectronVolts(piAntibonding.Energy):F3} eV");
+                
+                // Validate molecular orbital properties
+                bool molecularValid = h2plusBonding.NumberOfContributingOrbitals == 2 &&
+                                    h2plusAntibonding.NumberOfContributingOrbitals == 2 &&
+                                    h2plusBonding.IsBonding && !h2plusAntibonding.IsBonding &&
+                                    h2plusBonding.Energy < h2plusAntibonding.Energy && // Bonding lower than antibonding
+                                    Math.Abs(totalBondOrder - 0.5) < 1e-10 && // H₂⁺ has bond order 0.5
+                                    overlapPopBonding > 0 && overlapPopAntibonding < 0; // Bonding positive, antibonding negative
+                
+                if (!molecularValid)
+                {
+                    Console.WriteLine($"      ❌ Molecular orbital validation failed");
+                    allOrbitalsValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Molecular orbitals validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Molecular orbital testing failed: {ex.Message}");
+                allOrbitalsValid = false;
+            }
+            
+            // Test Orbital Framework Integration
+            Console.WriteLine("   ⚛️  Testing Orbital Framework Integration...");
+            try
+            {
+                // Test abstract Orbital base class functionality
+                var testOrbital = HydrogenicOrbital.Create1s(2.0); // He+ ion
+                
+                // Test base class properties
+                Console.WriteLine($"      Test orbital: {testOrbital.OrbitalDesignation} (Z={testOrbital.EffectiveNuclearCharge})");
+                Console.WriteLine($"      Quantum numbers: n={testOrbital.PrincipalQuantumNumber}, l={testOrbital.OrbitalAngularMomentumQuantumNumber}, ml={testOrbital.MagneticQuantumNumber}");
+                Console.WriteLine($"      Max electrons: {testOrbital.MaxElectrons}");
+                Console.WriteLine($"      Quantum state: {testOrbital.GetQuantumStateDescription()}");
+                
+                // Test angular momentum calculations
+                var angularMomentum = testOrbital.OrbitalAngularMomentumMagnitude();
+                var angularMomentumZ = testOrbital.OrbitalAngularMomentumZ();
+                
+                Console.WriteLine($"      ⟨|L|⟩ = {angularMomentum / PhysicsConstants.ReducedPlanckConstant:F3} ℏ");
+                Console.WriteLine($"      ⟨Lz⟩ = {angularMomentumZ / PhysicsConstants.ReducedPlanckConstant:F3} ℏ");
+                
+                // Test kinetic and potential energy expectations
+                var kineticEnergy = testOrbital.KineticEnergyExpectation();
+                var potentialEnergy = testOrbital.PotentialEnergyExpectation();
+                var totalEnergy = kineticEnergy + potentialEnergy;
+                
+                Console.WriteLine($"      ⟨T⟩ = {QuantumMath.JoulesToElectronVolts(kineticEnergy):F3} eV");
+                Console.WriteLine($"      ⟨V⟩ = {QuantumMath.JoulesToElectronVolts(potentialEnergy):F3} eV");
+                Console.WriteLine($"      ⟨T⟩ + ⟨V⟩ = {QuantumMath.JoulesToElectronVolts(totalEnergy):F3} eV");
+                Console.WriteLine($"      Energy = {QuantumMath.JoulesToElectronVolts(testOrbital.Energy):F3} eV");
+                
+                // Test overlap with itself (should be 1)
+                var selfOverlap = testOrbital.OverlapIntegral(testOrbital);
+                Console.WriteLine($"      Self overlap: {selfOverlap}");
+                
+                // Test orbital validation
+                var isValid = testOrbital.IsPhysicallyValid();
+                var quantumNumbersValid = testOrbital.ValidateQuantumNumbers();
+                
+                Console.WriteLine($"      Is physically valid: {isValid}");
+                Console.WriteLine($"      Quantum numbers valid: {quantumNumbersValid}");
+                
+                // Test detailed string representation
+                var detailedInfo = testOrbital.ToDetailedString();
+                bool hasDetailedInfo = detailedInfo.Contains("Orbital Type") && detailedInfo.Contains("Energy");
+                
+                Console.WriteLine($"      Detailed info available: {hasDetailedInfo}");
+                
+                // Validate framework integration
+                bool frameworkValid = testOrbital.IsNormalized &&
+                                    Math.Abs(selfOverlap.Real - 1.0) < 1e-10 &&
+                                    Math.Abs(selfOverlap.Imaginary) < 1e-10 &&
+                                    isValid && quantumNumbersValid &&
+                                    Math.Abs(totalEnergy - testOrbital.Energy) < 1e-10 && // Energy consistency
+                                    hasDetailedInfo;
+                
+                if (!frameworkValid)
+                {
+                    Console.WriteLine($"      ❌ Orbital framework integration validation failed");
+                    allOrbitalsValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Orbital framework integration validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Orbital framework integration testing failed: {ex.Message}");
+                allOrbitalsValid = false;
+            }
+            
+            // Summary
+            if (allOrbitalsValid)
+            {
+                Console.WriteLine($"   ✓ Orbital system validated");
+                Console.WriteLine($"      Hydrogen-like orbitals: Exact analytical solutions with spherical harmonics");
+                Console.WriteLine($"      Molecular orbitals: LCAO method with bonding/antibonding combinations");
+                Console.WriteLine($"      Abstract framework: Complete orbital property calculations and validation");
+                Console.WriteLine($"      Quantum mechanics: Proper normalization, orthogonality, and energy relationships");
+                Console.WriteLine($"      Integration: Seamless compatibility with existing quantum state system");
+            }
+            else
+            {
+                Console.WriteLine($"   ❌ Orbital system validation failed");
+            }
+            
+            return allOrbitalsValid;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Orbital system initialization failed: {ex.Message}");
+            return false;
+        }
     }
 }
