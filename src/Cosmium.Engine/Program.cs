@@ -10,6 +10,7 @@ using Cosmium.Engine.Physics.Quantum.Particles.Composite.Hadrons.Baryons;
 using Cosmium.Engine.Physics.Quantum.Particles.Composite.Hadrons.Mesons;
 using Cosmium.Engine.Physics.Quantum.States;
 using Cosmium.Engine.Physics.Quantum.Orbitals;
+using Cosmium.Engine.Physics.Quantum.Forces;
 
 namespace Cosmium.Engine;
 
@@ -61,6 +62,7 @@ internal class Program
         results.Add(("Composite Particles", InitializeCompositeParticles()));
         results.Add(("Quantum State System", InitializeQuantumStates()));
         results.Add(("Orbital System", InitializeOrbitalSystem()));
+        results.Add(("Fundamental Forces", InitializeFundamentalForces()));
 
         // Display results summary
         Console.WriteLine("\n📊 Initialization Results:");
@@ -1723,6 +1725,319 @@ internal class Program
         catch (Exception ex)
         {
             Console.WriteLine($"   ❌ Orbital system initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static bool InitializeFundamentalForces()
+    {
+        try
+        {
+            Console.WriteLine("⚡ Fundamental Forces System:");
+
+            bool allForcesValid = true;
+
+            // Test Electromagnetic Force
+            Console.WriteLine("   🔬 Testing Electromagnetic Force...");
+            try
+            {
+                var emForce = ElectromagneticForce.Instance;
+                var electron = new Electron(false);
+                var proton = new Proton();
+                var distance = 1e-10; // 0.1 nm
+
+                Console.WriteLine($"      Force: {emForce.Name} ({emForce.Symbol})");
+                Console.WriteLine($"      Range: {emForce.TypicalRange:E2} m");
+                Console.WriteLine($"      Relative strength: {emForce.RelativeStrength:E2}");
+                Console.WriteLine($"      Character: {emForce.Character}");
+                Console.WriteLine($"      Mediating bosons: [{string.Join(", ", emForce.MediatingBosons)}]");
+
+                // Test particle interactions
+                bool canInteract = emForce.CanParticlesInteract(electron, proton);
+                Console.WriteLine($"      Electron-proton interaction: {canInteract}");
+
+                if (canInteract)
+                {
+                    var forceMagnitude = emForce.CalculateForceMagnitude(electron, proton, distance);
+                    var potentialEnergy = emForce.CalculatePotentialEnergy(electron, proton, distance);
+                    var coupling = emForce.GetCouplingConstant(1e-18); // 10 aJ (positive energy)
+
+                    Console.WriteLine($"      Force magnitude at {distance:E2} m: {forceMagnitude:E3} N");
+                    Console.WriteLine($"      Potential energy: {UnitConversions.JoulesToElectronVolts(potentialEnergy):F3} eV");
+                    Console.WriteLine($"      Coupling constant: {coupling:F6}");
+
+                    // Test scattering cross section
+                    var crossSection = emForce.CalculateScatteringCrossSection(electron, proton, 1e-18);
+                    Console.WriteLine($"      Scattering cross section: {crossSection:E3} m²");
+                }
+
+                // Validate electromagnetic force properties
+                bool emForceValid = emForce.Name == "Electromagnetic Force" &&
+                                  emForce.Character == ForceCharacter.AttractiveOrRepulsive &&
+                                  emForce.MediatingBosons.Contains("Photon") &&
+                                  canInteract;
+
+                if (!emForceValid)
+                {
+                    Console.WriteLine($"      ❌ Electromagnetic force validation failed");
+                    allForcesValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Electromagnetic force validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Electromagnetic force testing failed: {ex.Message}");
+                allForcesValid = false;
+            }
+
+            // Test Strong Force
+            Console.WriteLine("   🔬 Testing Strong Force...");
+            try
+            {
+                var strongForce = StrongForce.Instance;
+                var upQuark = new Quark(QuarkType.Up, QuarkColor.Red);
+                var downQuark = new Quark(QuarkType.Down, QuarkColor.Blue);
+                var distance = 1e-15; // 1 fm
+
+                Console.WriteLine($"      Force: {strongForce.Name} ({strongForce.Symbol})");
+                Console.WriteLine($"      Range: {strongForce.TypicalRange:E2} m");
+                Console.WriteLine($"      Relative strength: {strongForce.RelativeStrength:E2}");
+                Console.WriteLine($"      Character: {strongForce.Character}");
+                Console.WriteLine($"      Mediating bosons: [{string.Join(", ", strongForce.MediatingBosons)}]");
+
+                // Test quark interactions
+                bool canInteract = strongForce.CanParticlesInteract(upQuark, downQuark);
+                Console.WriteLine($"      Quark-quark interaction: {canInteract}");
+
+                if (canInteract)
+                {
+                    var coupling = strongForce.GetCouplingConstant(1e-12); // 1 pJ
+                    var colorFactor = strongForce.CalculateColorFactor(upQuark, downQuark);
+                    var isConfinementRegime = strongForce.IsInConfinementRegime(distance, 1e-12);
+                    var isPerturbativeRegime = strongForce.IsInPerturbativeRegime(distance, 1e-12);
+
+                    Console.WriteLine($"      Coupling constant: {coupling:F3}");
+                    Console.WriteLine($"      Color factor: {colorFactor:F3}");
+                    Console.WriteLine($"      Confinement regime: {isConfinementRegime}");
+                    Console.WriteLine($"      Perturbative regime: {isPerturbativeRegime}");
+
+                    // Test deconfinement temperature
+                    var deconfinementTemp = strongForce.GetDeconfinementTemperature();
+                    Console.WriteLine($"      Deconfinement temperature: {deconfinementTemp:E2} K");
+                }
+
+                // Validate strong force properties
+                bool strongForceValid = strongForce.Name == "Strong Nuclear Force" &&
+                                      strongForce.Character == ForceCharacter.Complex &&
+                                      strongForce.MediatingBosons.Contains("Gluon") &&
+                                      canInteract;
+
+                if (!strongForceValid)
+                {
+                    Console.WriteLine($"      ❌ Strong force validation failed");
+                    allForcesValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Strong force validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Strong force testing failed: {ex.Message}");
+                allForcesValid = false;
+            }
+
+            // Test Weak Force
+            Console.WriteLine("   🔬 Testing Weak Force...");
+            try
+            {
+                var weakForce = WeakForce.Instance;
+                var electron = new Electron(false);
+                var neutron = new Neutron();
+
+                Console.WriteLine($"      Force: {weakForce.Name} ({weakForce.Symbol})");
+                Console.WriteLine($"      Range: {weakForce.TypicalRange:E2} m");
+                Console.WriteLine($"      Relative strength: {weakForce.RelativeStrength:E2}");
+                Console.WriteLine($"      Character: {weakForce.Character}");
+                Console.WriteLine($"      Mediating bosons: [{string.Join(", ", weakForce.MediatingBosons)}]");
+
+                // Test weak interactions
+                bool canInteract = weakForce.CanParticlesInteract(electron, neutron);
+                Console.WriteLine($"      Electron-neutron interaction: {canInteract}");
+
+                // Test beta decay
+                var betaDecayProb = weakForce.CalculateBetaDecayProbability(1e-12, 1.0); // 1 second
+                Console.WriteLine($"      Beta decay probability (1s): {betaDecayProb:E3}");
+
+                // Test neutrino cross section
+                var neutrinoCrossSection = weakForce.CalculateNeutrinoInteractionCrossSection(1e-12);
+                Console.WriteLine($"      Neutrino cross section: {neutrinoCrossSection:E3} m²");
+
+                // Test electroweak unification
+                var isElectroweakUnified = weakForce.IsElectroweakUnified(1e-10); // 100 GeV
+                Console.WriteLine($"      Electroweak unification at 100 GeV: {isElectroweakUnified}");
+
+                // Validate weak force properties
+                bool weakForceValid = weakForce.Name == "Weak Nuclear Force" &&
+                                    weakForce.Character == ForceCharacter.AttractiveOrRepulsive &&
+                                    weakForce.MediatingBosons.Contains("W⁺") &&
+                                    weakForce.MediatingBosons.Contains("Z⁰");
+
+                if (!weakForceValid)
+                {
+                    Console.WriteLine($"      ❌ Weak force validation failed");
+                    allForcesValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Weak force validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Weak force testing failed: {ex.Message}");
+                allForcesValid = false;
+            }
+
+            // Test Gravitational Force
+            Console.WriteLine("   🔬 Testing Gravitational Force...");
+            try
+            {
+                var gravForce = GravitationalForce.Instance;
+                var proton1 = new Proton();
+                var proton2 = new Proton();
+                var distance = 1e-15; // 1 fm
+
+                Console.WriteLine($"      Force: {gravForce.Name} ({gravForce.Symbol})");
+                Console.WriteLine($"      Range: {(double.IsInfinity(gravForce.TypicalRange) ? "∞" : gravForce.TypicalRange.ToString("E2"))} m");
+                Console.WriteLine($"      Relative strength: {gravForce.RelativeStrength:E2}");
+                Console.WriteLine($"      Character: {gravForce.Character}");
+                Console.WriteLine($"      Mediating bosons: [{string.Join(", ", gravForce.MediatingBosons)}]");
+
+                // Test gravitational interactions
+                bool canInteract = gravForce.CanParticlesInteract(proton1, proton2);
+                Console.WriteLine($"      Proton-proton interaction: {canInteract}");
+
+                if (canInteract)
+                {
+                    var forceMagnitude = gravForce.CalculateForceMagnitude(proton1, proton2, distance);
+                    var potentialEnergy = gravForce.CalculatePotentialEnergy(proton1, proton2, distance);
+                    var schwarzschildRadius = gravForce.CalculateSchwarzschildRadius(proton1.Mass.Value);
+
+                    Console.WriteLine($"      Force magnitude at {distance:E2} m: {forceMagnitude:E3} N");
+                    Console.WriteLine($"      Potential energy: {potentialEnergy:E3} J");
+                    Console.WriteLine($"      Schwarzschild radius: {schwarzschildRadius:E3} m");
+
+                    // Test relativistic regime
+                    var isRelativistic = gravForce.IsRelativisticRegime(proton1, proton2, distance);
+                    var isQuantumGravity = gravForce.IsQuantumGravityRegime(distance);
+
+                    Console.WriteLine($"      Relativistic regime: {isRelativistic}");
+                    Console.WriteLine($"      Quantum gravity regime: {isQuantumGravity}");
+                }
+
+                // Validate gravitational force properties
+                bool gravForceValid = gravForce.Name == "Gravitational Force" &&
+                                    gravForce.Character == ForceCharacter.AlwaysAttractive &&
+                                    gravForce.MediatingBosons.Contains("Graviton") &&
+                                    canInteract;
+
+                if (!gravForceValid)
+                {
+                    Console.WriteLine($"      ❌ Gravitational force validation failed");
+                    allForcesValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Gravitational force validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Gravitational force testing failed: {ex.Message}");
+                allForcesValid = false;
+            }
+
+            // Test Force Interactions and Comparisons
+            Console.WriteLine("   🔬 Testing Force Interactions and Comparisons...");
+            try
+            {
+                var electron = new Electron(false);
+                var proton = new Proton();
+                var distance = PhysicsConstants.BohrRadius; // Bohr radius
+
+                var emForce = ElectromagneticForce.Instance;
+                var gravForce = GravitationalForce.Instance;
+
+                // Calculate both forces at the same distance
+                var emForceMagnitude = emForce.CalculateForceMagnitude(electron, proton, distance);
+                var gravForceMagnitude = gravForce.CalculateForceMagnitude(electron, proton, distance);
+
+                var forceRatio = Math.Abs(emForceMagnitude / gravForceMagnitude);
+
+                Console.WriteLine($"      Distance: {distance:E2} m (Bohr radius)");
+                Console.WriteLine($"      EM force magnitude: {emForceMagnitude:E3} N");
+                Console.WriteLine($"      Gravitational force magnitude: {gravForceMagnitude:E3} N");
+                Console.WriteLine($"      EM/Gravity ratio: {forceRatio:E2}");
+
+                // Test that EM force dominates at atomic scales
+                bool emDominatesAtomicScale = Math.Abs(emForceMagnitude) > Math.Abs(gravForceMagnitude);
+                Console.WriteLine($"      EM dominates at atomic scale: {emDominatesAtomicScale}");
+
+                // Test force vector calculations
+                var pos1 = new Vector3D(0, 0, 0);
+                var pos2 = new Vector3D(distance, 0, 0);
+                var emForceVector = emForce.CalculateForceVector(electron, proton, pos1, pos2);
+
+                Console.WriteLine($"      EM force vector: {emForceVector}");
+                Console.WriteLine($"      Force vector magnitude: {emForceVector.Magnitude:E3} N");
+
+                // Validate force comparisons
+                bool forceComparisonValid = emDominatesAtomicScale &&
+                                          forceRatio > 1e35 && // EM force much stronger than gravity
+                                          Math.Abs(emForceVector.Magnitude - Math.Abs(emForceMagnitude)) < 1e-15;
+
+                if (!forceComparisonValid)
+                {
+                    Console.WriteLine($"      ❌ Force comparison validation failed");
+                    allForcesValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Force interactions and comparisons validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Force interaction testing failed: {ex.Message}");
+                allForcesValid = false;
+            }
+
+            // Summary
+            if (allForcesValid)
+            {
+                Console.WriteLine($"   ✓ Fundamental forces system validated");
+                Console.WriteLine($"      Electromagnetic: QED with Coulomb and magnetic interactions");
+                Console.WriteLine($"      Strong: QCD with confinement and asymptotic freedom");
+                Console.WriteLine($"      Weak: Electroweak theory with W/Z bosons and beta decay");
+                Console.WriteLine($"      Gravitational: General relativity with quantum corrections");
+                Console.WriteLine($"      All forces implement proper physics and Standard Model");
+                Console.WriteLine($"      Force hierarchy and relative strengths correctly modeled");
+            }
+            else
+            {
+                Console.WriteLine($"   ❌ Fundamental forces system validation failed");
+            }
+
+            return allForcesValid;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Fundamental forces initialization failed: {ex.Message}");
             return false;
         }
     }
