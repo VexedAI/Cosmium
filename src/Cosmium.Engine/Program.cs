@@ -11,6 +11,7 @@ using Cosmium.Engine.Physics.Quantum.Particles.Composite.Hadrons.Mesons;
 using Cosmium.Engine.Physics.Quantum.States;
 using Cosmium.Engine.Physics.Quantum.Orbitals;
 using Cosmium.Engine.Physics.Quantum.Forces;
+using Cosmium.Engine.Physics.Quantum.Particles.Composite.Atoms;
 
 namespace Cosmium.Engine;
 
@@ -63,6 +64,7 @@ internal class Program
         results.Add(("Quantum State System", InitializeQuantumStates()));
         results.Add(("Orbital System", InitializeOrbitalSystem()));
         results.Add(("Fundamental Forces", InitializeFundamentalForces()));
+        results.Add(("Atomic Structure", InitializeAtomicStructure()));
 
         // Display results summary
         Console.WriteLine("\n📊 Initialization Results:");
@@ -2038,6 +2040,163 @@ internal class Program
         catch (Exception ex)
         {
             Console.WriteLine($"   ❌ Fundamental forces initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static bool InitializeAtomicStructure()
+    {
+        try
+        {
+            Console.WriteLine("⚛️  Atomic Structure System:");
+
+            bool allAtomicStructureValid = true;
+
+            // Test Nucleus
+            Console.WriteLine("   🔬 Testing Nucleus...");
+            try
+            {
+                // Test basic nuclei
+                var hydrogen = new Nucleus(1, 1); // Proton
+                var helium = new Nucleus(2, 4);   // Alpha particle
+                var carbon12 = new Nucleus(6, 12); // Carbon-12
+
+                Console.WriteLine($"      Hydrogen nucleus: Z={hydrogen.AtomicNumber}, A={hydrogen.MassNumber}");
+                Console.WriteLine($"      Helium nucleus: Z={helium.AtomicNumber}, A={helium.MassNumber}");
+                Console.WriteLine($"      Carbon-12 nucleus: Z={carbon12.AtomicNumber}, A={carbon12.MassNumber}");
+
+                Console.WriteLine($"      Nuclear radii: H={hydrogen.NuclearRadius*1e15:F1} fm, He={helium.NuclearRadius*1e15:F1} fm, C={carbon12.NuclearRadius*1e15:F1} fm");
+                Console.WriteLine($"      Binding energies: H={UnitConversions.JoulesToElectronVolts(hydrogen.BindingEnergy.Value)/1e6:F1} MeV, He={UnitConversions.JoulesToElectronVolts(helium.BindingEnergy.Value)/1e6:F1} MeV");
+                Console.WriteLine($"      Stability: H={hydrogen.IsStable}, He={helium.IsStable}, C={carbon12.IsStable}");
+
+                bool nucleusValid = hydrogen.AtomicNumber == 1 && helium.AtomicNumber == 2 && carbon12.AtomicNumber == 6 &&
+                                  hydrogen.NeutronNumber == 0 && helium.NeutronNumber == 2 && carbon12.NeutronNumber == 6 &&
+                                  hydrogen.IsStable && helium.IsStable && carbon12.IsStable;
+
+                if (!nucleusValid)
+                {
+                    Console.WriteLine($"      ❌ Nucleus validation failed");
+                    allAtomicStructureValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Nucleus validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Nucleus testing failed: {ex.Message}");
+                allAtomicStructureValid = false;
+            }
+
+            // Test Electron Shells
+            Console.WriteLine("   🔬 Testing Electron Shells...");
+            try
+            {
+                // Test K shell (n=1)
+                var kShell = new ElectronShell(1, 1); // Hydrogen K shell
+                var lShell = new ElectronShell(2, 6); // Carbon L shell
+
+                Console.WriteLine($"      K shell: {kShell.ShellDesignation}, max electrons: {kShell.MaxElectrons}");
+                Console.WriteLine($"      L shell: {lShell.ShellDesignation}, max electrons: {lShell.MaxElectrons}");
+
+                // Add electrons
+                var kAdded = kShell.AddElectrons(2);
+                var lAdded = lShell.AddElectrons(8);
+
+                Console.WriteLine($"      K shell filled: {kAdded}/2 electrons");
+                Console.WriteLine($"      L shell filled: {lAdded}/8 electrons");
+                Console.WriteLine($"      K shell configuration: {kShell.GetElectronConfiguration()}");
+                Console.WriteLine($"      L shell configuration: {lShell.GetElectronConfiguration()}");
+
+                bool shellValid = kShell.MaxElectrons == 2 && lShell.MaxElectrons == 8 &&
+                                kShell.ElectronCount == 2 && lShell.ElectronCount == 8 &&
+                                kShell.IsFilled && lShell.IsFilled;
+
+                if (!shellValid)
+                {
+                    Console.WriteLine($"      ❌ Electron shell validation failed");
+                    allAtomicStructureValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Electron shells validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Electron shell testing failed: {ex.Message}");
+                allAtomicStructureValid = false;
+            }
+
+            // Test Complete Atoms
+            Console.WriteLine("   🔬 Testing Complete Atoms...");
+            try
+            {
+                // Test hydrogen atom
+                var hydrogen = Atom.CreateHydrogen();
+                Console.WriteLine($"      Hydrogen: {hydrogen} ({hydrogen.ElementName})");
+                Console.WriteLine($"      Configuration: {hydrogen.ElectronConfiguration}");
+                Console.WriteLine($"      Valence electrons: {hydrogen.ValenceElectrons}");
+                Console.WriteLine($"      Atomic radius: {hydrogen.AtomicRadius*1e12:F1} pm");
+
+                // Test helium atom
+                var helium = Atom.CreateHelium();
+                Console.WriteLine($"      Helium: {helium} ({helium.ElementName})");
+                Console.WriteLine($"      Configuration: {helium.ElectronConfiguration}");
+                Console.WriteLine($"      Is noble gas: {helium.ValenceElectrons == helium.ElectronShells.Last().MaxElectrons}");
+
+                // Test carbon atom
+                var carbon = Atom.CreateCarbon();
+                Console.WriteLine($"      Carbon: {carbon} ({carbon.ElementName})");
+                Console.WriteLine($"      Configuration: {carbon.ElectronConfiguration}");
+                Console.WriteLine($"      Valence electrons: {carbon.ValenceElectrons}");
+                Console.WriteLine($"      Oxidation states: [{string.Join(", ", carbon.GetPossibleOxidationStates())}]");
+
+                // Test ionization
+                var carbonIon = Atom.CreateCarbon(12, 4); // C²⁺
+                Console.WriteLine($"      Carbon ion: {carbonIon} (charge: {carbonIon.IonizationState}+)");
+
+                bool atomValid = hydrogen.IsNeutral && helium.IsNeutral && carbon.IsNeutral &&
+                               hydrogen.AtomicNumber == 1 && helium.AtomicNumber == 2 && carbon.AtomicNumber == 6 &&
+                               hydrogen.ValenceElectrons == 1 && carbon.ValenceElectrons == 4 &&
+                               carbonIon.IsCation && carbonIon.IonizationState == 2;
+
+                if (!atomValid)
+                {
+                    Console.WriteLine($"      ❌ Complete atom validation failed");
+                    allAtomicStructureValid = false;
+                }
+                else
+                {
+                    Console.WriteLine($"      ✓ Complete atoms validated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"      ❌ Complete atom testing failed: {ex.Message}");
+                allAtomicStructureValid = false;
+            }
+
+            // Summary
+            if (allAtomicStructureValid)
+            {
+                Console.WriteLine($"   ✓ Atomic structure system validated");
+                Console.WriteLine($"      Nucleus: Nuclear physics with binding energies and stability");
+                Console.WriteLine($"      Electron Shells: Quantum mechanical orbital structure");
+                Console.WriteLine($"      Complete Atoms: Full atomic model with chemical properties");
+                Console.WriteLine($"      Integration: Seamless compatibility with quantum framework");
+            }
+            else
+            {
+                Console.WriteLine($"   ❌ Atomic structure system validation failed");
+            }
+
+            return allAtomicStructureValid;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"   ❌ Atomic structure initialization failed: {ex.Message}");
             return false;
         }
     }
