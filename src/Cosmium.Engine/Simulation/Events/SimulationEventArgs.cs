@@ -542,3 +542,1007 @@ public enum ErrorSeverity
     /// </summary>
     Fatal
 }
+
+#region Engine Event Arguments
+
+/// <summary>
+/// Event arguments for simulation engine status changes.
+/// </summary>
+public class EngineStatusChangedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the unique identifier of the engine.
+    /// </summary>
+    public Guid EngineId { get; }
+
+    /// <summary>
+    /// Gets the previous status of the engine.
+    /// </summary>
+    public object PreviousStatus { get; }
+
+    /// <summary>
+    /// Gets the new status of the engine.
+    /// </summary>
+    public object NewStatus { get; }
+
+    /// <summary>
+    /// Gets the reason for the status change.
+    /// </summary>
+    public string Reason { get; }
+
+    /// <summary>
+    /// Gets the engine name.
+    /// </summary>
+    public string EngineName { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the EngineStatusChangedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="engineId">The engine identifier.</param>
+    /// <param name="engineName">The engine name.</param>
+    /// <param name="previousStatus">The previous status.</param>
+    /// <param name="newStatus">The new status.</param>
+    /// <param name="reason">The reason for the change.</param>
+    public EngineStatusChangedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        Guid engineId,
+        string engineName,
+        object previousStatus,
+        object newStatus,
+        string reason)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        EngineId = engineId;
+        EngineName = engineName ?? throw new ArgumentNullException(nameof(engineName));
+        PreviousStatus = previousStatus;
+        NewStatus = newStatus;
+        Reason = reason ?? throw new ArgumentNullException(nameof(reason));
+    }
+}
+
+/// <summary>
+/// Event arguments for simulation step completion.
+/// </summary>
+public class SimulationStepCompletedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the time step that was executed.
+    /// </summary>
+    public double TimeStep { get; }
+
+    /// <summary>
+    /// Gets the execution time for this step in milliseconds.
+    /// </summary>
+    public double ExecutionTimeMs { get; }
+
+    /// <summary>
+    /// Gets the number of particles evolved in this step.
+    /// </summary>
+    public int ParticleCount { get; }
+
+    /// <summary>
+    /// Gets the total energy after this step.
+    /// </summary>
+    public double TotalEnergy { get; }
+
+    /// <summary>
+    /// Gets the energy conservation error for this step.
+    /// </summary>
+    public double EnergyError { get; }
+
+    /// <summary>
+    /// Gets whether this step was successful.
+    /// </summary>
+    public bool IsSuccessful { get; }
+
+    /// <summary>
+    /// Gets any warnings generated during this step.
+    /// </summary>
+    public IReadOnlyList<string> Warnings { get; }
+
+    /// <summary>
+    /// Gets performance metrics for this step.
+    /// </summary>
+    public Dictionary<string, double> PerformanceMetrics { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the SimulationStepCompletedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="timeStep">The time step executed.</param>
+    /// <param name="executionTimeMs">The execution time in milliseconds.</param>
+    /// <param name="particleCount">The particle count.</param>
+    /// <param name="totalEnergy">The total energy.</param>
+    /// <param name="energyError">The energy conservation error.</param>
+    /// <param name="isSuccessful">Whether the step was successful.</param>
+    /// <param name="warnings">Any warnings generated.</param>
+    /// <param name="performanceMetrics">Performance metrics.</param>
+    public SimulationStepCompletedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        double timeStep,
+        double executionTimeMs,
+        int particleCount,
+        double totalEnergy,
+        double energyError,
+        bool isSuccessful,
+        IEnumerable<string>? warnings = null,
+        Dictionary<string, double>? performanceMetrics = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        TimeStep = timeStep;
+        ExecutionTimeMs = executionTimeMs;
+        ParticleCount = particleCount;
+        TotalEnergy = totalEnergy;
+        EnergyError = energyError;
+        IsSuccessful = isSuccessful;
+        Warnings = warnings?.ToList().AsReadOnly() ?? new List<string>().AsReadOnly();
+        PerformanceMetrics = performanceMetrics ?? new Dictionary<string, double>();
+    }
+}
+
+/// <summary>
+/// Event arguments for performance metrics updates.
+/// </summary>
+public class PerformanceMetricsUpdatedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the current steps per second rate.
+    /// </summary>
+    public double StepsPerSecond { get; }
+
+    /// <summary>
+    /// Gets the average step execution time in milliseconds.
+    /// </summary>
+    public double AverageStepTimeMs { get; }
+
+    /// <summary>
+    /// Gets the current memory usage in MB.
+    /// </summary>
+    public double MemoryUsageMB { get; }
+
+    /// <summary>
+    /// Gets the CPU usage percentage.
+    /// </summary>
+    public double CpuUsagePercent { get; }
+
+    /// <summary>
+    /// Gets the efficiency rating (0.0 to 1.0).
+    /// </summary>
+    public double Efficiency { get; }
+
+    /// <summary>
+    /// Gets the number of active threads.
+    /// </summary>
+    public int ActiveThreads { get; }
+
+    /// <summary>
+    /// Gets the FLOPS (floating point operations per second).
+    /// </summary>
+    public double FLOPS { get; }
+
+    /// <summary>
+    /// Gets additional performance metrics.
+    /// </summary>
+    public Dictionary<string, double> AdditionalMetrics { get; }
+
+    /// <summary>
+    /// Gets performance recommendations.
+    /// </summary>
+    public IReadOnlyList<string> Recommendations { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the PerformanceMetricsUpdatedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="stepsPerSecond">The steps per second rate.</param>
+    /// <param name="averageStepTimeMs">The average step time in milliseconds.</param>
+    /// <param name="memoryUsageMB">The memory usage in MB.</param>
+    /// <param name="cpuUsagePercent">The CPU usage percentage.</param>
+    /// <param name="efficiency">The efficiency rating.</param>
+    /// <param name="activeThreads">The number of active threads.</param>
+    /// <param name="flops">The FLOPS rate.</param>
+    /// <param name="additionalMetrics">Additional metrics.</param>
+    /// <param name="recommendations">Performance recommendations.</param>
+    public PerformanceMetricsUpdatedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        double stepsPerSecond,
+        double averageStepTimeMs,
+        double memoryUsageMB,
+        double cpuUsagePercent,
+        double efficiency,
+        int activeThreads,
+        double flops,
+        Dictionary<string, double>? additionalMetrics = null,
+        IEnumerable<string>? recommendations = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        StepsPerSecond = stepsPerSecond;
+        AverageStepTimeMs = averageStepTimeMs;
+        MemoryUsageMB = memoryUsageMB;
+        CpuUsagePercent = cpuUsagePercent;
+        Efficiency = Math.Max(0, Math.Min(1, efficiency));
+        ActiveThreads = activeThreads;
+        FLOPS = flops;
+        AdditionalMetrics = additionalMetrics ?? new Dictionary<string, double>();
+        Recommendations = recommendations?.ToList().AsReadOnly() ?? new List<string>().AsReadOnly();
+    }
+}
+
+/// <summary>
+/// Event arguments for engine errors.
+/// </summary>
+public class EngineErrorEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the engine identifier where the error occurred.
+    /// </summary>
+    public Guid EngineId { get; }
+
+    /// <summary>
+    /// Gets the engine name where the error occurred.
+    /// </summary>
+    public string EngineName { get; }
+
+    /// <summary>
+    /// Gets the error that occurred.
+    /// </summary>
+    public Exception Error { get; }
+
+    /// <summary>
+    /// Gets the error message.
+    /// </summary>
+    public string ErrorMessage { get; }
+
+    /// <summary>
+    /// Gets the severity of the error.
+    /// </summary>
+    public ErrorSeverity Severity { get; }
+
+    /// <summary>
+    /// Gets whether the error is recoverable.
+    /// </summary>
+    public bool IsRecoverable { get; }
+
+    /// <summary>
+    /// Gets the component that generated the error.
+    /// </summary>
+    public string Component { get; }
+
+    /// <summary>
+    /// Gets additional error context.
+    /// </summary>
+    public Dictionary<string, object> ErrorContext { get; }
+
+    /// <summary>
+    /// Gets whether recovery was attempted.
+    /// </summary>
+    public bool RecoveryAttempted { get; }
+
+    /// <summary>
+    /// Gets whether recovery was successful.
+    /// </summary>
+    public bool RecoverySuccessful { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the EngineErrorEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="engineId">The engine identifier.</param>
+    /// <param name="engineName">The engine name.</param>
+    /// <param name="error">The error that occurred.</param>
+    /// <param name="severity">The error severity.</param>
+    /// <param name="isRecoverable">Whether the error is recoverable.</param>
+    /// <param name="component">The component that generated the error.</param>
+    /// <param name="recoveryAttempted">Whether recovery was attempted.</param>
+    /// <param name="recoverySuccessful">Whether recovery was successful.</param>
+    public EngineErrorEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        Guid engineId,
+        string engineName,
+        Exception error,
+        ErrorSeverity severity,
+        bool isRecoverable,
+        string component = "",
+        bool recoveryAttempted = false,
+        bool recoverySuccessful = false)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        EngineId = engineId;
+        EngineName = engineName ?? throw new ArgumentNullException(nameof(engineName));
+        Error = error ?? throw new ArgumentNullException(nameof(error));
+        ErrorMessage = error.Message;
+        Severity = severity;
+        IsRecoverable = isRecoverable;
+        Component = component ?? string.Empty;
+        ErrorContext = new Dictionary<string, object>();
+        RecoveryAttempted = recoveryAttempted;
+        RecoverySuccessful = recoverySuccessful;
+    }
+}
+
+/// <summary>
+/// Event arguments for convergence detection.
+/// </summary>
+public class ConvergenceDetectedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the type of convergence detected.
+    /// </summary>
+    public ConvergenceType ConvergenceType { get; }
+
+    /// <summary>
+    /// Gets the convergence tolerance used.
+    /// </summary>
+    public double Tolerance { get; }
+
+    /// <summary>
+    /// Gets the actual convergence error achieved.
+    /// </summary>
+    public double ActualError { get; }
+
+    /// <summary>
+    /// Gets the convergence criteria that was met.
+    /// </summary>
+    public string ConvergenceCriteria { get; }
+
+    /// <summary>
+    /// Gets the number of steps taken to reach convergence.
+    /// </summary>
+    public long StepsToConvergence { get; }
+
+    /// <summary>
+    /// Gets the time taken to reach convergence.
+    /// </summary>
+    public TimeSpan TimeToConvergence { get; }
+
+    /// <summary>
+    /// Gets the final converged value.
+    /// </summary>
+    public double ConvergedValue { get; }
+
+    /// <summary>
+    /// Gets additional convergence metrics.
+    /// </summary>
+    public Dictionary<string, double> ConvergenceMetrics { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the ConvergenceDetectedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="convergenceType">The type of convergence.</param>
+    /// <param name="tolerance">The convergence tolerance.</param>
+    /// <param name="actualError">The actual error achieved.</param>
+    /// <param name="convergenceCriteria">The convergence criteria.</param>
+    /// <param name="stepsToConvergence">The steps to convergence.</param>
+    /// <param name="timeToConvergence">The time to convergence.</param>
+    /// <param name="convergedValue">The final converged value.</param>
+    /// <param name="convergenceMetrics">Additional convergence metrics.</param>
+    public ConvergenceDetectedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        ConvergenceType convergenceType,
+        double tolerance,
+        double actualError,
+        string convergenceCriteria,
+        long stepsToConvergence,
+        TimeSpan timeToConvergence,
+        double convergedValue,
+        Dictionary<string, double>? convergenceMetrics = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        ConvergenceType = convergenceType;
+        Tolerance = tolerance;
+        ActualError = actualError;
+        ConvergenceCriteria = convergenceCriteria ?? throw new ArgumentNullException(nameof(convergenceCriteria));
+        StepsToConvergence = stepsToConvergence;
+        TimeToConvergence = timeToConvergence;
+        ConvergedValue = convergedValue;
+        ConvergenceMetrics = convergenceMetrics ?? new Dictionary<string, double>();
+    }
+}
+
+/// <summary>
+/// Enumeration of convergence types.
+/// </summary>
+public enum ConvergenceType
+{
+    /// <summary>
+    /// Energy convergence.
+    /// </summary>
+    Energy,
+
+    /// <summary>
+    /// State convergence.
+    /// </summary>
+    State,
+
+    /// <summary>
+    /// Observable convergence.
+    /// </summary>
+    Observable,
+
+    /// <summary>
+    /// Force convergence.
+    /// </summary>
+    Force,
+
+    /// <summary>
+    /// Gradient convergence.
+    /// </summary>
+    Gradient,
+
+    /// <summary>
+    /// Density convergence.
+    /// </summary>
+    Density,
+
+    /// <summary>
+    /// Custom convergence criteria.
+    /// </summary>
+    Custom
+}
+
+#endregion
+
+#region State Evolution Event Arguments
+
+/// <summary>
+/// Event arguments for evolution engine status changes.
+/// </summary>
+public class EvolutionStatusChangedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the unique identifier of the evolution engine.
+    /// </summary>
+    public Guid EngineId { get; }
+
+    /// <summary>
+    /// Gets the engine name.
+    /// </summary>
+    public string EngineName { get; }
+
+    /// <summary>
+    /// Gets the previous status of the evolution engine.
+    /// </summary>
+    public object PreviousStatus { get; }
+
+    /// <summary>
+    /// Gets the new status of the evolution engine.
+    /// </summary>
+    public object NewStatus { get; }
+
+    /// <summary>
+    /// Gets the reason for the status change.
+    /// </summary>
+    public string Reason { get; }
+
+    /// <summary>
+    /// Gets the current evolution method being used.
+    /// </summary>
+    public string EvolutionMethod { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the EvolutionStatusChangedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="engineId">The engine identifier.</param>
+    /// <param name="engineName">The engine name.</param>
+    /// <param name="previousStatus">The previous status.</param>
+    /// <param name="newStatus">The new status.</param>
+    /// <param name="reason">The reason for the change.</param>
+    /// <param name="evolutionMethod">The current evolution method.</param>
+    public EvolutionStatusChangedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        Guid engineId,
+        string engineName,
+        object previousStatus,
+        object newStatus,
+        string reason,
+        string evolutionMethod = "")
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        EngineId = engineId;
+        EngineName = engineName ?? throw new ArgumentNullException(nameof(engineName));
+        PreviousStatus = previousStatus;
+        NewStatus = newStatus;
+        Reason = reason ?? throw new ArgumentNullException(nameof(reason));
+        EvolutionMethod = evolutionMethod ?? string.Empty;
+    }
+}
+
+/// <summary>
+/// Event arguments for state evolution completion.
+/// </summary>
+public class StateEvolutionCompletedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the time step that was evolved.
+    /// </summary>
+    public double TimeStep { get; }
+
+    /// <summary>
+    /// Gets the evolution method used.
+    /// </summary>
+    public string EvolutionMethod { get; }
+
+    /// <summary>
+    /// Gets the execution time for the evolution in milliseconds.
+    /// </summary>
+    public double ExecutionTimeMs { get; }
+
+    /// <summary>
+    /// Gets whether the evolution was successful.
+    /// </summary>
+    public bool IsSuccessful { get; }
+
+    /// <summary>
+    /// Gets the numerical error in the evolution.
+    /// </summary>
+    public double NumericalError { get; }
+
+    /// <summary>
+    /// Gets the unitarity error after evolution.
+    /// </summary>
+    public double UnitarityError { get; }
+
+    /// <summary>
+    /// Gets the norm preservation error.
+    /// </summary>
+    public double NormError { get; }
+
+    /// <summary>
+    /// Gets the energy conservation error.
+    /// </summary>
+    public double EnergyError { get; }
+
+    /// <summary>
+    /// Gets the number of particles evolved.
+    /// </summary>
+    public int ParticleCount { get; }
+
+    /// <summary>
+    /// Gets any warnings generated during evolution.
+    /// </summary>
+    public IReadOnlyList<string> Warnings { get; }
+
+    /// <summary>
+    /// Gets performance metrics for the evolution.
+    /// </summary>
+    public Dictionary<string, double> PerformanceMetrics { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the StateEvolutionCompletedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="timeStep">The time step evolved.</param>
+    /// <param name="evolutionMethod">The evolution method used.</param>
+    /// <param name="executionTimeMs">The execution time in milliseconds.</param>
+    /// <param name="isSuccessful">Whether the evolution was successful.</param>
+    /// <param name="numericalError">The numerical error.</param>
+    /// <param name="unitarityError">The unitarity error.</param>
+    /// <param name="normError">The norm preservation error.</param>
+    /// <param name="energyError">The energy conservation error.</param>
+    /// <param name="particleCount">The particle count.</param>
+    /// <param name="warnings">Any warnings generated.</param>
+    /// <param name="performanceMetrics">Performance metrics.</param>
+    public StateEvolutionCompletedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        double timeStep,
+        string evolutionMethod,
+        double executionTimeMs,
+        bool isSuccessful,
+        double numericalError,
+        double unitarityError,
+        double normError,
+        double energyError,
+        int particleCount,
+        IEnumerable<string>? warnings = null,
+        Dictionary<string, double>? performanceMetrics = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        TimeStep = timeStep;
+        EvolutionMethod = evolutionMethod ?? throw new ArgumentNullException(nameof(evolutionMethod));
+        ExecutionTimeMs = executionTimeMs;
+        IsSuccessful = isSuccessful;
+        NumericalError = numericalError;
+        UnitarityError = unitarityError;
+        NormError = normError;
+        EnergyError = energyError;
+        ParticleCount = particleCount;
+        Warnings = warnings?.ToList().AsReadOnly() ?? new List<string>().AsReadOnly();
+        PerformanceMetrics = performanceMetrics ?? new Dictionary<string, double>();
+    }
+}
+
+/// <summary>
+/// Event arguments for measurement operations.
+/// </summary>
+public class MeasurementPerformedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the measurement operator used.
+    /// </summary>
+    public string MeasurementOperator { get; }
+
+    /// <summary>
+    /// Gets the measured eigenvalue.
+    /// </summary>
+    public Complex MeasuredValue { get; }
+
+    /// <summary>
+    /// Gets the probability of this measurement result.
+    /// </summary>
+    public double Probability { get; }
+
+    /// <summary>
+    /// Gets the measurement uncertainty.
+    /// </summary>
+    public double Uncertainty { get; }
+
+    /// <summary>
+    /// Gets whether the measurement caused state collapse.
+    /// </summary>
+    public bool CausedStateCollapse { get; }
+
+    /// <summary>
+    /// Gets the particles involved in the measurement.
+    /// </summary>
+    public IReadOnlyList<Guid> ParticleIds { get; }
+
+    /// <summary>
+    /// Gets the entropy before measurement.
+    /// </summary>
+    public double EntropyBefore { get; }
+
+    /// <summary>
+    /// Gets the entropy after measurement.
+    /// </summary>
+    public double EntropyAfter { get; }
+
+    /// <summary>
+    /// Gets additional measurement metadata.
+    /// </summary>
+    public Dictionary<string, object> MeasurementMetadata { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the MeasurementPerformedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="measurementOperator">The measurement operator.</param>
+    /// <param name="measuredValue">The measured value.</param>
+    /// <param name="probability">The measurement probability.</param>
+    /// <param name="uncertainty">The measurement uncertainty.</param>
+    /// <param name="causedStateCollapse">Whether state collapse occurred.</param>
+    /// <param name="particleIds">The particle IDs involved.</param>
+    /// <param name="entropyBefore">The entropy before measurement.</param>
+    /// <param name="entropyAfter">The entropy after measurement.</param>
+    /// <param name="measurementMetadata">Additional measurement metadata.</param>
+    public MeasurementPerformedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        string measurementOperator,
+        Complex measuredValue,
+        double probability,
+        double uncertainty,
+        bool causedStateCollapse,
+        IEnumerable<Guid> particleIds,
+        double entropyBefore,
+        double entropyAfter,
+        Dictionary<string, object>? measurementMetadata = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        MeasurementOperator = measurementOperator ?? throw new ArgumentNullException(nameof(measurementOperator));
+        MeasuredValue = measuredValue;
+        Probability = probability;
+        Uncertainty = uncertainty;
+        CausedStateCollapse = causedStateCollapse;
+        ParticleIds = (particleIds ?? throw new ArgumentNullException(nameof(particleIds))).ToList().AsReadOnly();
+        EntropyBefore = entropyBefore;
+        EntropyAfter = entropyAfter;
+        MeasurementMetadata = measurementMetadata ?? new Dictionary<string, object>();
+    }
+}
+
+/// <summary>
+/// Event arguments for numerical error detection.
+/// </summary>
+public class NumericalErrorDetectedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the type of numerical error detected.
+    /// </summary>
+    public NumericalErrorType ErrorType { get; }
+
+    /// <summary>
+    /// Gets the magnitude of the error.
+    /// </summary>
+    public double ErrorMagnitude { get; }
+
+    /// <summary>
+    /// Gets the threshold that was exceeded.
+    /// </summary>
+    public double Threshold { get; }
+
+    /// <summary>
+    /// Gets the component where the error was detected.
+    /// </summary>
+    public string Component { get; }
+
+    /// <summary>
+    /// Gets whether correction was attempted.
+    /// </summary>
+    public bool CorrectionAttempted { get; }
+
+    /// <summary>
+    /// Gets whether correction was successful.
+    /// </summary>
+    public bool CorrectionSuccessful { get; }
+
+    /// <summary>
+    /// Gets the error description.
+    /// </summary>
+    public string ErrorDescription { get; }
+
+    /// <summary>
+    /// Gets recommendations for addressing the error.
+    /// </summary>
+    public IReadOnlyList<string> Recommendations { get; }
+
+    /// <summary>
+    /// Gets additional error details.
+    /// </summary>
+    public Dictionary<string, object> ErrorDetails { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the NumericalErrorDetectedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="errorType">The type of error.</param>
+    /// <param name="errorMagnitude">The error magnitude.</param>
+    /// <param name="threshold">The threshold exceeded.</param>
+    /// <param name="component">The component where error occurred.</param>
+    /// <param name="correctionAttempted">Whether correction was attempted.</param>
+    /// <param name="correctionSuccessful">Whether correction was successful.</param>
+    /// <param name="errorDescription">The error description.</param>
+    /// <param name="recommendations">Recommendations for addressing the error.</param>
+    /// <param name="errorDetails">Additional error details.</param>
+    public NumericalErrorDetectedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        NumericalErrorType errorType,
+        double errorMagnitude,
+        double threshold,
+        string component,
+        bool correctionAttempted,
+        bool correctionSuccessful,
+        string errorDescription,
+        IEnumerable<string>? recommendations = null,
+        Dictionary<string, object>? errorDetails = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        ErrorType = errorType;
+        ErrorMagnitude = errorMagnitude;
+        Threshold = threshold;
+        Component = component ?? throw new ArgumentNullException(nameof(component));
+        CorrectionAttempted = correctionAttempted;
+        CorrectionSuccessful = correctionSuccessful;
+        ErrorDescription = errorDescription ?? throw new ArgumentNullException(nameof(errorDescription));
+        Recommendations = recommendations?.ToList().AsReadOnly() ?? new List<string>().AsReadOnly();
+        ErrorDetails = errorDetails ?? new Dictionary<string, object>();
+    }
+}
+
+/// <summary>
+/// Event arguments for entanglement changes.
+/// </summary>
+public class EntanglementChangedEventArgs : SimulationEventArgs
+{
+    /// <summary>
+    /// Gets the type of entanglement change.
+    /// </summary>
+    public EntanglementChangeType ChangeType { get; }
+
+    /// <summary>
+    /// Gets the first particle involved.
+    /// </summary>
+    public Guid Particle1Id { get; }
+
+    /// <summary>
+    /// Gets the second particle involved.
+    /// </summary>
+    public Guid Particle2Id { get; }
+
+    /// <summary>
+    /// Gets the entanglement strength before the change.
+    /// </summary>
+    public double EntanglementBefore { get; }
+
+    /// <summary>
+    /// Gets the entanglement strength after the change.
+    /// </summary>
+    public double EntanglementAfter { get; }
+
+    /// <summary>
+    /// Gets the Bell state type for the entanglement.
+    /// </summary>
+    public string BellStateType { get; }
+
+    /// <summary>
+    /// Gets the decoherence time for the entanglement.
+    /// </summary>
+    public double DecoherenceTime { get; }
+
+    /// <summary>
+    /// Gets the reason for the entanglement change.
+    /// </summary>
+    public string Reason { get; }
+
+    /// <summary>
+    /// Gets additional entanglement metadata.
+    /// </summary>
+    public Dictionary<string, object> EntanglementMetadata { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the EntanglementChangedEventArgs class.
+    /// </summary>
+    /// <param name="simulationId">The simulation identifier.</param>
+    /// <param name="simulationTime">The simulation time.</param>
+    /// <param name="simulationStep">The simulation step.</param>
+    /// <param name="changeType">The type of change.</param>
+    /// <param name="particle1Id">The first particle ID.</param>
+    /// <param name="particle2Id">The second particle ID.</param>
+    /// <param name="entanglementBefore">The entanglement strength before.</param>
+    /// <param name="entanglementAfter">The entanglement strength after.</param>
+    /// <param name="bellStateType">The Bell state type.</param>
+    /// <param name="decoherenceTime">The decoherence time.</param>
+    /// <param name="reason">The reason for the change.</param>
+    /// <param name="entanglementMetadata">Additional metadata.</param>
+    public EntanglementChangedEventArgs(
+        Guid simulationId,
+        double simulationTime,
+        long simulationStep,
+        EntanglementChangeType changeType,
+        Guid particle1Id,
+        Guid particle2Id,
+        double entanglementBefore,
+        double entanglementAfter,
+        string bellStateType,
+        double decoherenceTime,
+        string reason,
+        Dictionary<string, object>? entanglementMetadata = null)
+        : base(simulationId, simulationTime, simulationStep)
+    {
+        ChangeType = changeType;
+        Particle1Id = particle1Id;
+        Particle2Id = particle2Id;
+        EntanglementBefore = entanglementBefore;
+        EntanglementAfter = entanglementAfter;
+        BellStateType = bellStateType ?? throw new ArgumentNullException(nameof(bellStateType));
+        DecoherenceTime = decoherenceTime;
+        Reason = reason ?? throw new ArgumentNullException(nameof(reason));
+        EntanglementMetadata = entanglementMetadata ?? new Dictionary<string, object>();
+    }
+}
+
+/// <summary>
+/// Enumeration of numerical error types.
+/// </summary>
+public enum NumericalErrorType
+{
+    /// <summary>
+    /// State normalization error.
+    /// </summary>
+    NormalizationError,
+
+    /// <summary>
+    /// Unitarity preservation error.
+    /// </summary>
+    UnitarityError,
+
+    /// <summary>
+    /// Energy conservation error.
+    /// </summary>
+    EnergyConservationError,
+
+    /// <summary>
+    /// Matrix conditioning error.
+    /// </summary>
+    MatrixConditioningError,
+
+    /// <summary>
+    /// Numerical overflow.
+    /// </summary>
+    NumericalOverflow,
+
+    /// <summary>
+    /// Numerical underflow.
+    /// </summary>
+    NumericalUnderflow,
+
+    /// <summary>
+    /// Convergence failure.
+    /// </summary>
+    ConvergenceFailure,
+
+    /// <summary>
+    /// Precision loss.
+    /// </summary>
+    PrecisionLoss,
+
+    /// <summary>
+    /// Accumulated rounding error.
+    /// </summary>
+    AccumulatedRoundingError
+}
+
+/// <summary>
+/// Enumeration of entanglement change types.
+/// </summary>
+public enum EntanglementChangeType
+{
+    /// <summary>
+    /// New entanglement created.
+    /// </summary>
+    Created,
+
+    /// <summary>
+    /// Existing entanglement strengthened.
+    /// </summary>
+    Strengthened,
+
+    /// <summary>
+    /// Existing entanglement weakened.
+    /// </summary>
+    Weakened,
+
+    /// <summary>
+    /// Entanglement broken/destroyed.
+    /// </summary>
+    Broken,
+
+    /// <summary>
+    /// Entanglement underwent decoherence.
+    /// </summary>
+    Decoherence,
+
+    /// <summary>
+    /// Entanglement measured and collapsed.
+    /// </summary>
+    Measured
+}
+
+#endregion
